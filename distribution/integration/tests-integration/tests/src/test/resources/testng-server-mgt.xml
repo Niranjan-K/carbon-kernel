@@ -66,4 +66,10 @@
         </classes>
     </test>
 
+    <test name="Jira-Issues-Test" preserve-order="false" verbose="2">
+        <packages>
+            <package name="org.wso2.carbon.integration.tests.jira.issues.test"/>
+        </packages>
+    </test>
+
 </suite>

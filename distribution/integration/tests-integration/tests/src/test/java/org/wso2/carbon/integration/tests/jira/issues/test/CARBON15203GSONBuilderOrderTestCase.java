@@ -96,7 +96,8 @@ public class CARBON15203GSONBuilderOrderTestCase extends CarbonIntegrationBaseTe
     private void changeConfigFiles() throws Exception {
         String axis2Artifact =
                 System.getProperty(FrameworkConstants.SYSTEM_ARTIFACT_RESOURCE_LOCATION) + File.separator +
-                "axis2config" + File.separator + "CARBON15203" + File.separator + "axis2.xml";
+                "artifacts" + File.separator + "CARBON" + File.separator + "jira" + File.separator + "issues" +
+                File.separator + "CARBON15203" + File.separator + "axis2.xml";
         File axis2SrcFile = new File(axis2Artifact);
         String axis2ConfigPath =
                 carbonHome + File.separator + "repository" + File.separator + "conf" + File.separator + "axis2";
