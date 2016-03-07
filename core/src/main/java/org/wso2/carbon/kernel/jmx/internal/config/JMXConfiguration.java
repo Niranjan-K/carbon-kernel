@@ -15,6 +15,11 @@
  */
 package org.wso2.carbon.kernel.jmx.internal.config;
 
+/**
+ * JMX Configuration bean.
+ *
+ * @since 5.1.0
+ */
 public class JMXConfiguration {
     private boolean enabled;
     private String hostName;

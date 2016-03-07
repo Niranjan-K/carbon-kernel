@@ -43,7 +43,7 @@ limitations under the License.
             <!--keep this test as the last since there is a issue in windows intermittently-->
             <class name="org.wso2.carbon.osgi.startupresolver.PendingCapabilityRegistrationOSGiTest"/>
 
-            <class name="org.wso2.carbon.osgi.jmx.JMXTest"/>
+            <!--<class name="org.wso2.carbon.osgi.jmx.JMXTest"/>-->
         </classes>
     </test>
 </suite>

@@ -15,15 +15,20 @@
  */
 package org.wso2.carbon.kernel.jmx.security;
 
+import java.util.Collections;
 import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
-import java.util.Collections;
 
-public class CarbonJMXAuthenticator implements javax.management.remote.JMXAuthenticator {
+/**
+ * Carbon JMX Authenticator OSGi Test Case
+ *
+ * @since 5.1.0
+ */
+public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
     @Override
-    public javax.security.auth.Subject authenticate(Object credentials) {
+    public Subject authenticate(Object credentials) {
         if (credentials == null) {
             throw new SecurityException("Credentials required");
         }
@@ -42,10 +47,8 @@ public class CarbonJMXAuthenticator implements javax.management.remote.JMXAuthen
         String password = aCredentials[1];
 
         if ("admin".equals(userName) && "password".equals(password)) {
-            return new javax.security.auth.Subject(true,
-                    java.util.Collections.singleton(new javax.management.remote.JMXPrincipal(userName)),
-                    java.util.Collections.EMPTY_SET,
-                    java.util.Collections.EMPTY_SET);
+            return new Subject(true, Collections.singleton(new JMXPrincipal(userName)),
+                    Collections.EMPTY_SET, Collections.EMPTY_SET);
         } else {
             throw new SecurityException("Invalid credentials");
         }

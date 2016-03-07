@@ -8,15 +8,15 @@ import java.rmi.server.RMIServerSocketFactory;
 /**
  * SingleAddressRMIServerSocketFactory
  */
-public class SingleAddressRMIServerSocketFactory implements java.rmi.server.RMIServerSocketFactory {
-    private final java.net.InetAddress inetAddress;
+public class SingleAddressRMIServerSocketFactory implements RMIServerSocketFactory {
+    private final InetAddress inetAddress;
 
-    public SingleAddressRMIServerSocketFactory(java.net.InetAddress inetAddress) {
+    public SingleAddressRMIServerSocketFactory(InetAddress inetAddress) {
         this.inetAddress = inetAddress;
     }
 
     @Override
-    public java.net.ServerSocket createServerSocket(int port) throws java.io.IOException {
-        return new java.net.ServerSocket(port, 0, inetAddress);
+    public ServerSocket createServerSocket(int port) throws IOException {
+        return new ServerSocket(port, 0, inetAddress);
     }
 }

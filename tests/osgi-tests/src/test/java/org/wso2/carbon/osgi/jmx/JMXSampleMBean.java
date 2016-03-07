@@ -15,6 +15,11 @@
  */
 package org.wso2.carbon.osgi.jmx;
 
+/**
+ * JMX Sample MBean to test Carbon JMX Authenticator OSGi Test Case
+ *
+ * @since 5.1.0
+ */
 public interface JMXSampleMBean {
     public void reset();
     public int getCount();

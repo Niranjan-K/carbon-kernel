@@ -15,6 +15,11 @@
  */
 package org.wso2.carbon.kernel.jmx.internal.config;
 
+/**
+ * The exception class for all JMX related the exception can be thrown from CarbonJMX.
+ *
+ * @since 5.1.0
+ */
 public class JMXConfigurationException extends Exception {
     public JMXConfigurationException(String message) {
         super(message);

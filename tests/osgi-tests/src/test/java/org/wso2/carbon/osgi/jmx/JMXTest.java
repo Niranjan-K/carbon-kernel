@@ -22,6 +22,9 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+import java.lang.management.ManagementFactory;
+import java.util.HashMap;
+import java.util.Map;
 import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
@@ -29,42 +32,45 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import java.lang.management.ManagementFactory;
-import java.util.HashMap;
-import java.util.Map;
 
-@org.testng.annotations.Listeners(org.ops4j.pax.exam.testng.listener.PaxExam.class)
-@org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy(org.ops4j.pax.exam.spi.reactors.PerClass.class)
+/**
+ * The exception class for all deployment related the exception that
+ * can be thrown from CarbonDeployementEngine.
+ *
+ * @since 5.1.0
+ */
+@Listeners(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class JMXTest {
-    @org.testng.annotations.Test
+    @Test
     public void testMBeanRegistration() throws Exception {
         JMXSample test = new JMXSample();
-        javax.management.ObjectName mbeanName = new javax.management.ObjectName("org.wso2.carbon.osgi.jmx:type=JMXSample");
-        javax.management.MBeanServer mBeanServer = java.lang.management.ManagementFactory.getPlatformMBeanServer();
+        ObjectName mbeanName = new ObjectName("org.wso2.carbon.osgi.jmx:type=JMXSample");
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         mBeanServer.registerMBean(test, mbeanName);
 
-        org.testng.Assert.assertTrue(mBeanServer.isRegistered(mbeanName), "MBean is not registered");
+        Assert.assertTrue(mBeanServer.isRegistered(mbeanName), "MBean is not registered");
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = {"testMBeanRegistration"})
+    @Test(dependsOnMethods = {"testMBeanRegistration"})
     public void testAccessMBean() throws Exception {
 
-        javax.management.remote.JMXServiceURL url = new javax.management.remote.JMXServiceURL("service:jmx:rmi://localhost:11111/jndi/rmi://localhost:9999/jmxrmi");
-        java.util.Map<String, Object> environment = new java.util.HashMap<>();
+        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://localhost:11111/jndi/rmi://localhost:9999/jmxrmi");
+        Map<String, Object> environment = new HashMap<>();
         String[] credentials = {"admin", "password"};
-        environment.put(javax.management.remote.JMXConnector.CREDENTIALS, credentials);
-        javax.management.remote.JMXConnector jmxc = javax.management.remote.JMXConnectorFactory.connect(url, environment);
-        javax.management.MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
+        environment.put(JMXConnector.CREDENTIALS, credentials);
+        JMXConnector jmxc = JMXConnectorFactory.connect(url, environment);
+        MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
 
-        javax.management.ObjectName mbeanName = new javax.management.ObjectName("org.wso2.carbon.osgi.jmx:type=JMXSample");
-        JMXSampleMBean mbeanProxy = javax.management.JMX.newMBeanProxy(mbsc, mbeanName, JMXSampleMBean.class, true);
+        ObjectName mbeanName = new ObjectName("org.wso2.carbon.osgi.jmx:type=JMXSample");
+        JMXSampleMBean mbeanProxy = JMX.newMBeanProxy(mbsc, mbeanName, JMXSampleMBean.class, true);
 
-        org.testng.Assert.assertEquals(mbeanProxy.getCount(), 0, "Count is not zero");
+        Assert.assertEquals(mbeanProxy.getCount(), 0, "Count is not zero");
 
         mbeanProxy.setCount(500);
-        org.testng.Assert.assertEquals(mbeanProxy.getCount(), 500, "Count is not 500");
+        Assert.assertEquals(mbeanProxy.getCount(), 500, "Count is not 500");
 
         mbeanProxy.reset();
-        org.testng.Assert.assertEquals(mbeanProxy.getCount(), 0, "Count is not reset");
+        Assert.assertEquals(mbeanProxy.getCount(), 0, "Count is not reset");
     }
 }

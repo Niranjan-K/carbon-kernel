@@ -21,9 +21,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.jmx.connection.SingleAddressRMIServerSocketFactory;
 import org.wso2.carbon.kernel.jmx.internal.config.JMXConfiguration;
-import org.wso2.carbon.kernel.jmx.internal.config.YAMLJMXConfigurationBuilder;
 import org.wso2.carbon.kernel.jmx.security.CarbonJMXAuthenticator;
 
 import java.lang.management.ManagementFactory;
@@ -38,15 +40,15 @@ import javax.management.remote.rmi.RMIConnectorServer;
 /**
  * CarbonJMXComponent
  *
- * @since 1.0.0
+ * @since 5.1.0
  */
-@org.osgi.service.component.annotations.Component(
-        name = "org.wso2.carbon.jmx.internal.CarbonJMXComponent",
+@Component(
+        name = "org.wso2.carbon.kernel.jmx.internal.CarbonJMXComponent",
         immediate = true
 )
 public class CarbonJMXComponent {
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(org.wso2.carbon.kernel.jmx.internal.CarbonJMXComponent.class);
-    private final static String JAVA_RMI_SERVER_HOSTNAME = "java.rmi.server.hostname";
+    private static final Logger logger = LoggerFactory.getLogger(CarbonJMXComponent.class);
+    private static final String JAVA_RMI_SERVER_HOSTNAME = "java.rmi.server.hostname";
 
     /**
      * This is the activation method of CarbonJMXComponent. This will be called when all the references are
@@ -54,10 +56,12 @@ public class CarbonJMXComponent {
      *
      * @param bundleContext the bundle context instance of this bundle.
      */
-    @org.osgi.service.component.annotations.Activate
-    protected void start(org.osgi.framework.BundleContext bundleContext) {
+    @Activate
+    protected void start(BundleContext bundleContext) {
         try {
-            JMXConfiguration jmxConfiguration = YAMLJMXConfigurationBuilder.build();
+            CarbonRuntime carbonRuntime = DataHolder.getInstance().getCarbonRuntime();
+            CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
+            JMXConfiguration jmxConfiguration = carbonConfiguration.getJmxConfiguration();
             if (!jmxConfiguration.isEnabled()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Remote JMX is disabled.");
@@ -71,8 +75,8 @@ public class CarbonJMXComponent {
                 System.setProperty(JAVA_RMI_SERVER_HOSTNAME, hostname);
             }
 
-            java.net.InetAddress[] inetAddresses = java.net.InetAddress.getAllByName(hostname);
-            if (inetAddresses == null || inetAddresses.length == 0) {
+            InetAddress[] inetAddresses = InetAddress.getAllByName(hostname);
+            if (inetAddresses.length == 0) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("No network interface available for '{}' to start JMXConnectorServer", hostname);
                 }
@@ -81,21 +85,20 @@ public class CarbonJMXComponent {
 
             SingleAddressRMIServerSocketFactory singleAddressRMIServerSocketFactory =
                     new SingleAddressRMIServerSocketFactory(inetAddresses[0]);
-            java.rmi.registry.LocateRegistry.createRegistry(jmxConfiguration.getRmiRegistryPort(), null,
+            LocateRegistry.createRegistry(jmxConfiguration.getRmiRegistryPort(), null,
                     singleAddressRMIServerSocketFactory);
 
             String jmxURL = "service:jmx:rmi://" + hostname + ":" + jmxConfiguration.getRmiServerPort()
                     + "/jndi/rmi://" + hostname + ":" + jmxConfiguration.getRmiRegistryPort() + "/jmxrmi";
-            javax.management.remote.JMXServiceURL jmxServiceURL = new javax.management.remote.JMXServiceURL(jmxURL);
+            JMXServiceURL jmxServiceURL = new javax.management.remote.JMXServiceURL(jmxURL);
 
-            java.util.HashMap<String, Object> environment = new java.util.HashMap<>();
-            environment.put(javax.management.remote.JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
-            environment.put(javax.management.remote.rmi.RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE,
+            HashMap<String, Object> environment = new HashMap<>();
+            environment.put(JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
+            environment.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE,
                     singleAddressRMIServerSocketFactory);
 
-            javax.management.remote.JMXConnectorServer jmxConnectorServer =
-                    javax.management.remote.JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, environment,
-                            java.lang.management.ManagementFactory.getPlatformMBeanServer());
+            JMXConnectorServer jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL,
+                    environment, ManagementFactory.getPlatformMBeanServer());
             jmxConnectorServer.start();
             logger.info("JMXServerManager JMX Service URL : " + jmxServiceURL.toString());
         } catch (Throwable throwable) {
@@ -109,7 +112,7 @@ public class CarbonJMXComponent {
      *
      * @throws Exception this will be thrown if an issue occurs while executing the de-activate method
      */
-    @org.osgi.service.component.annotations.Deactivate
+    @Deactivate
     protected void stop() throws Exception {
 
     }
