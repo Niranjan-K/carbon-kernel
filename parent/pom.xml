@@ -287,6 +287,11 @@
                 <version>${equinox.console.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.eclipse.equinox</groupId>
+                <artifactId>org.eclipse.equinox.p2.engine</artifactId>
+                <version>${org.eclipse.equinox.p2.engine.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.gogo.command</artifactId>
                 <version>${apache.felix.gogo.command.version}</version>
@@ -426,6 +431,12 @@
                 <type>zip</type>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.p2.touchpoint</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
         </dependencies>
    </dependencyManagement>
 
@@ -477,6 +488,12 @@
         <apache.felix.gogo.runtime.version>0.10.0.v201209301036</apache.felix.gogo.runtime.version>
         <equinox.osgi.compatibility.statre.version>1.0.1.v20140709-1414</equinox.osgi.compatibility.statre.version>
 
+        <!-- Carbon P2 Touchpoint -->
+        <org.eclipse.equinox.p2.engine.version>2.3.0.v20140506-1720</org.eclipse.equinox.p2.engine.version>
+        <org.eclipse.core.runtime.import.version.range>[3.12.0, 4.0.0)</org.eclipse.core.runtime.import.version.range>
+        <org.eclipse.equinox.p2.engine.import.version.range>[2.4.0, 3.0.0)</org.eclipse.equinox.p2.engine.import.version.range>
+        <org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>[2.1.0, 3.0.0)</org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>
+
         <!--PAX Logging related dependency versions-->
         <pax.logging.api.version>1.8.5</pax.logging.api.version>
         <pax.logging.log4j2.version>1.8.5</pax.logging.log4j2.version>
@@ -498,7 +515,7 @@
         <geronimo.atinject.spec.version>1.0</geronimo.atinject.spec.version>
 
         <!--Other dependency versions -->
-        <carbon.feature.plugin.version>2.0.1</carbon.feature.plugin.version>
+        <carbon.feature.plugin.version>2.1.0-SNAPSHOT</carbon.feature.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0,2.0.0)</org.snakeyaml.package.import.version.range>
         <testng.version>6.9.4</testng.version>
