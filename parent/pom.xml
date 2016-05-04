@@ -437,6 +437,12 @@
                 <artifactId>org.wso2.carbon.p2.touchpoint</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.p2.touchpoint.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
         </dependencies>
    </dependencyManagement>
 
@@ -490,9 +496,9 @@
 
         <!-- Carbon P2 Touchpoint -->
         <org.eclipse.equinox.p2.engine.version>2.3.0.v20140506-1720</org.eclipse.equinox.p2.engine.version>
-        <org.eclipse.core.runtime.import.version.range>[3.12.0, 4.0.0)</org.eclipse.core.runtime.import.version.range>
-        <org.eclipse.equinox.p2.engine.import.version.range>[2.4.0, 3.0.0)</org.eclipse.equinox.p2.engine.import.version.range>
-        <org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>[2.1.0, 3.0.0)</org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>
+        <org.eclipse.core.runtime.import.version.range>[3.0.0, 4.0.0)</org.eclipse.core.runtime.import.version.range>
+        <org.eclipse.equinox.p2.engine.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.engine.import.version.range>
+        <org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>
 
         <!--PAX Logging related dependency versions-->
         <pax.logging.api.version>1.8.5</pax.logging.api.version>

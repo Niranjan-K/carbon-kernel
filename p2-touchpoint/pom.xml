@@ -53,9 +53,9 @@
                         <Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            org.eclipse.core.runtime.*;version="${org.eclipse.core.runtime.import.version.range}",
-                            org.eclipse.equinox.p2.engine.*;version="${org.eclipse.equinox.p2.engine.import.version.range}",
-                            org.eclipse.equinox.p2.touchpoint.eclipse.*;version="${org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range}",
+                            org.eclipse.core.runtime.*;version="${org.eclipse.core.runtime.import.version.range}";resolution:=optional,
+                            org.eclipse.equinox.p2.engine.*;version="${org.eclipse.equinox.p2.engine.import.version.range}";resolution:=optional,
+                            org.eclipse.equinox.p2.touchpoint.eclipse.*;version="${org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range}";resolution:=optional,
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.p2.touchpoint.*;version="${carbon.kernel.package.export.version}"
