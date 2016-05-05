@@ -1,0 +1,5 @@
+metaRequirements.0.namespace = org.eclipse.equinox.p2.iu
+metaRequirements.0.name = org.wso2.carbon.p2.touchpoint
+
+instructions.configure = \
+org.wso2.carbon.p2.touchpoint.mergeProperties(sourceFile:${installFolder}/../../features/org.wso2.carbon.p2.touchpoint.sample_${feature.version}/conf/osgi/launch.properties,targetFile:${installFolder}/../../../conf/osgi/launch.properties);
