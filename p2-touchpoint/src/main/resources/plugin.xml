@@ -19,8 +19,8 @@
 <plugin>
     <extension point="org.eclipse.equinox.p2.engine.actions">
         <action
-                class="org.wso2.carbon.p2.touchpoint.CustomTouchpointAction"
-                name="customAction"
+                class="org.wso2.carbon.p2.touchpoint.action.MergePropertiesAction"
+                name="mergeProperties"
                 touchpointType="org.eclipse.equinox.p2.osgi"
                 touchpointVersion="1.0.0"
                 version="1.0.0">

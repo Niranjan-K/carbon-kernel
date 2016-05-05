@@ -40,6 +40,11 @@
             <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.engine</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.10</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -63,10 +68,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-            <!--<groupId>org.apache.felix</groupId>-->
-            <!--<artifactId>maven-scr-plugin</artifactId>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 

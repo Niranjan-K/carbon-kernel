@@ -12,28 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.wso2.carbon.p2.touchpoint;
+package org.wso2.carbon.p2.touchpoint.utils;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
-import java.util.Map;
 
 /**
- * CustomTouchpointAction class.
+ * Carbon P2 Touchpoint utility methods.
+ *
+ * @since 5.1.0
  */
-public class CustomTouchpointAction extends ProvisioningAction {
+public class Utils {
 
-    @Override
-    public IStatus execute(Map<String, Object> parameters) {
-        return Status.OK_STATUS;
-    }
-
-    @Override
-    public IStatus undo(Map<String, Object> parameters) {
-        return Status.OK_STATUS;
+    /**
+     * Returns an Object with a message and status as ERROR
+     *
+     * @param message   Error message that should be returned
+     * @return          Status Object with Severity as Error
+     */
+    public static IStatus createError(String message) {
+        return new Status(IStatus.ERROR, Constants.PLUGIN_ID, message);
     }
 }
