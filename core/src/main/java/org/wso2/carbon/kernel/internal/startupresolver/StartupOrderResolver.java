@@ -247,15 +247,12 @@ public class StartupOrderResolver {
                                                 startupComponent.getName());
                                 pendingCapabilityList
                                         .forEach(provideCapability ->
-                                                logger.warn("Startup component {} from bundle({}:{}) will be in the " +
-                                                                "pending state until Capability {} from " +
-                                                                "bundle({}:{}) is available",
-                                                        startupComponent.getName(),
-                                                        startupComponent.getBundle().getSymbolicName(),
-                                                        startupComponent.getBundle().getVersion(),
-                                                        provideCapability.getName(),
-                                                        provideCapability.getBundle().getSymbolicName(),
-                                                        provideCapability.getBundle().getVersion()));
+                                                System.out.println("Startup component " + startupComponent.getName()
+                                                        + " from bundle(" + startupComponent.getBundle().getSymbolicName() +
+                                                        ":" + startupComponent.getBundle().getVersion() + ") will be in the " +
+                                                        "pending state until Capability " + provideCapability.getName() + " from " +
+                                                        "bundle(" + provideCapability.getBundle().getSymbolicName()
+                                                        + ":" + provideCapability.getBundle().getVersion() + ") is available"));
 
                             });
                 }
