@@ -56,6 +56,17 @@
             <artifactId>org.wso2.carbon.runtime.feature</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.p2.touchpoint.feature</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.p2.touchpoint.sample.feature</artifactId>
+            <version>5.1.0-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -126,6 +137,14 @@
                                     <id>org.wso2.carbon.runtime.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.p2.touchpoint.feature</id>
+                                    <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.p2.touchpoint.sample.feature</id>
+                                    <version>5.1.0-SNAPSHOT</version>
+                                </feature>
                             </features>
                         </configuration>
                     </execution>
@@ -175,6 +194,10 @@
                                     <id>org.wso2.carbon.kernel.feature.group</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.p2.touchpoint.sample.feature.group</id>
+                                    <version>5.1.0-SNAPSHOT</version>
+                                </feature>
                             </features>
                         </configuration>
                     </execution>
@@ -197,25 +220,25 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>clean_target</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <target>
-                                <delete dir="target/archive-tmp" />
-                                <delete dir="target/dependency-maven-plugin-markers" />
-                                <delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart" />
-                                <delete dir="target/p2-repo" />
-                                <!-- Figure out a way to delete tmp.* files -->
-                                <delete file="target/tmp" />
-                                <delete dir="target/WSO2Carbon" />
-                                <delete dir="target/antrun" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<id>clean_target</id>-->
+                        <!--<phase>install</phase>-->
+                        <!--<configuration>-->
+                            <!--<target>-->
+                                <!--<delete dir="target/archive-tmp" />-->
+                                <!--<delete dir="target/dependency-maven-plugin-markers" />-->
+                                <!--<delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart" />-->
+                                <!--<delete dir="target/p2-repo" />-->
+                                <!--&lt;!&ndash; Figure out a way to delete tmp.* files &ndash;&gt;-->
+                                <!--<delete file="target/tmp" />-->
+                                <!--<delete dir="target/WSO2Carbon" />-->
+                                <!--<delete dir="target/antrun" />-->
+                            <!--</target>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
 
                 </executions>
             </plugin>
