@@ -56,6 +56,18 @@
             <artifactId>org.wso2.carbon.runtime.feature</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.maven</groupId>
+            <artifactId>org.wso2.carbon.p2.touchpoint.feature</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.touchpoint.sample.feature</artifactId>
+            <version>5.2.0-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -126,6 +138,14 @@
                                     <id>org.wso2.carbon.runtime.feature</id>
                                     <version>${carbon.kernel.version}</version>
                                 </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.p2.touchpoint.feature</id>
+                                    <version>3.0.0-SNAPSHOT</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.touchpoint.sample.feature</id>
+                                    <version>5.2.0-SNAPSHOT</version>
+                                </feature>
                             </features>
                         </configuration>
                     </execution>
@@ -149,16 +169,32 @@
                         <id>materialize-product</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>generate-profile</goal>
+                            <goal>generate-runtime</goal>
                         </goals>
                         <configuration>
                             <productConfigurationFile>${basedir}/carbon.product
                             </productConfigurationFile>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
                             <targetPath>file:${basedir}/target/WSO2Carbon/wso2</targetPath>
-                            <profile>default</profile>
+                            <runtime>default</runtime>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>materialize-product2</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generate-runtime</goal>
+                        </goals>
+                        <configuration>
+                            <productConfigurationFile>${basedir}/carbon.product
+                            </productConfigurationFile>
+                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
+                            <targetPath>file:${basedir}/target/WSO2Carbon/wso2</targetPath>
+                            <runtime>integration</runtime>
+                        </configuration>
+                    </execution>
+
                     <execution>
                         <id>feature-installation</id>
                         <phase>package</phase>
@@ -166,14 +202,38 @@
                             <goal>install</goal>
                         </goals>
                         <configuration>
-                            <profile>default</profile>
+                            <runtime>default</runtime>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
                             <destination>${basedir}/target/WSO2Carbon/wso2</destination>
-                            <deleteOldProfileFiles>true</deleteOldProfileFiles>
+                            <deleteOldRuntimeFiles>true</deleteOldRuntimeFiles>
                             <features>
                                 <feature>
                                     <id>org.wso2.carbon.kernel.feature.group</id>
                                     <version>${carbon.kernel.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.touchpoint.sample.feature</id>
+                                    <version>5.2.0-SNAPSHOT</version>
+                                </feature>
+                            </features>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>feature-installation2</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                        <configuration>
+                            <runtime>integration</runtime>
+                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
+                            <destination>${basedir}/target/WSO2Carbon/wso2</destination>
+                            <deleteOldRuntimeFiles>true</deleteOldRuntimeFiles>
+                            <features>
+                                <feature>
+                                    <id>org.wso2.carbon.touchpoint.sample.feature</id>
+                                    <version>5.2.0-SNAPSHOT</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -210,6 +270,7 @@
                                 <delete file="target/tmp" />
                                 <delete dir="target/WSO2Carbon" />
                                 <delete dir="target/antrun" />
+                                <delete dir="target/director" />
                             </target>
                         </configuration>
                         <goals>
