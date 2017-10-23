@@ -43,6 +43,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
+
 public class PermissionTree {
 
     private static final String PERMISSION_CACHE_MANAGER = "PERMISSION_CACHE_MANAGER";
@@ -57,6 +59,7 @@ public class PermissionTree {
     protected String cacheIdentifier;
     protected volatile int hashValueOfRootNode;
     protected DataSource dataSource;
+    protected boolean preserveCaseForResources = true;
 
     /**
      * On the server startup, all permissions are populated from the DB and the
@@ -70,6 +73,21 @@ public class PermissionTree {
         this.cacheIdentifier = cacheIdentifier;
         this.tenantId = tenantId;
         this.dataSource = dataSource;
+    }
+
+    /**
+     * On the server startup, all permissions are populated from the DB and the
+     * permission tree is built in memory..
+     * With preserveCaseForResources it will support for both case sensitive and insensitive resources.
+     *
+     * @throws UserStoreException - SQL exceptions
+     */
+    public PermissionTree(String cacheIdentifier, int tenantId, DataSource dataSource, boolean preserveCaseForResources) {
+        root = new TreeNode("/");
+        this.cacheIdentifier = cacheIdentifier;
+        this.tenantId = tenantId;
+        this.dataSource = dataSource;
+        this.preserveCaseForResources = preserveCaseForResources;
     }
 
     /**
@@ -968,7 +986,20 @@ public class PermissionTree {
                     updatePermissionTreeFromDB();
                     cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
                     cacheEntry = new GhostResource<TreeNode>(root);
-                    permissionCache.put(cacheKey, cacheEntry);
+                    try {
+                        permissionCache.put(cacheKey, cacheEntry);
+                    } catch (IllegalStateException e) {
+                        if (e.getMessage().contains(ILLEGAL_STATE_EXCEPTION_MESSAGE)) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Error when trying to put an entry to permissionCache. Retrying..");
+                            }
+                            permissionCache = this.getPermissionTreeCache();
+                            permissionCache.put(cacheKey, cacheEntry);
+                        } else {
+                            // We only handle a specific IllegalStateException.
+                            throw e;
+                        }
+                    }
                     if (log.isDebugEnabled()) {
                         log.debug("Loaded from database");
                     }
@@ -1018,7 +1049,11 @@ public class PermissionTree {
         try {
             dbConnection = getDBConnection();
             // Populating role permissions
-            prepStmt1 = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS);
+            if (preserveCaseForResources) {
+                prepStmt1 = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS_CASE_SENSITIVE);
+            } else {
+                prepStmt1 = dbConnection.prepareStatement(DBConstants.GET_EXISTING_ROLE_PERMISSIONS);
+            }
             prepStmt1.setInt(1, tenantId);
             prepStmt1.setInt(2, tenantId);
 

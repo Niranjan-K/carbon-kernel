@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -200,7 +201,7 @@ public class JDBCTenantManager implements TenantManager {
 
 
     public void updateTenant(org.wso2.carbon.user.api.Tenant tenant) throws UserStoreException {
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenant.getId()));
+        clearTenantCache(tenant.getId());
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -258,7 +259,7 @@ public class JDBCTenantManager implements TenantManager {
                         prepStmt.setInt(2, tenant.getId());
                         prepStmt.executeUpdate();
                         dbConnection.commit();
-                        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenant.getId()));
+                        clearTenantCache(tenant.getId());
                         RealmCache.getInstance().clearFromCache(tenant.getId(), "primary");
                     } catch (IOException e) {
                         log.error("Error occurs while reading realm configuration", e);
@@ -289,11 +290,12 @@ public class JDBCTenantManager implements TenantManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Tenant getTenant(int tenantId) throws UserStoreException {
 
-        @SuppressWarnings("unchecked")
-        TenantCacheEntry<Tenant> entry = (TenantCacheEntry<Tenant>) tenantCacheManager
-                .getValueFromCache(new TenantIdKey(tenantId));
+
+        TenantCacheEntry<Tenant> entry = tenantCacheManager.getValueFromCache(new TenantIdKey(tenantId));
+
         if ((entry != null) && (entry.getTenant() != null)) {
             return entry.getTenant();
         }
@@ -332,6 +334,7 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
+
                 tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
             }
             dbConnection.commit();
@@ -539,7 +542,7 @@ public class JDBCTenantManager implements TenantManager {
 
     public void activateTenant(int tenantId) throws UserStoreException {
 
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        clearTenantCache(tenantId);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -567,7 +570,7 @@ public class JDBCTenantManager implements TenantManager {
 
         // Remove tenant information from the cache.
         tenantIdDomainMap.remove(tenantId);
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        clearTenantCache(tenantId);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -596,33 +599,10 @@ public class JDBCTenantManager implements TenantManager {
     public boolean isTenantActive(int tenantId) throws UserStoreException {
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             return true;
+        } else {
+            Tenant tenant = getTenant(tenantId);
+            return tenant.isActive();
         }
-        Connection dbConnection = null;
-        PreparedStatement prepStmt = null;
-        try {
-            dbConnection = getDBConnection();
-            String sqlStmt = TenantConstants.IS_TENANT_ACTIVE_SQL;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, tenantId);
-            ResultSet result = prepStmt.executeQuery();
-            if (result.next()) {
-                return result.getBoolean("UM_ACTIVE");
-            }
-            dbConnection.commit();
-        } catch (SQLException e) {
-
-            DatabaseUtil.rollBack(dbConnection);
-
-            String msg = "Error in getting the tenant status with " + "tenant id: "
-                    + tenantId + ".";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
-            throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
-        }
-        return false;
     }
 
     /**
@@ -654,7 +634,7 @@ public class JDBCTenantManager implements TenantManager {
         if (tenantDomain != null) {
             tenantDomainIdMap.remove(tenantDomain);
         }
-        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        clearTenantCache(tenantId);
 
         if (removeFromPersistentStorage) {
             Connection dbConnection = null;
@@ -742,5 +722,9 @@ public class JDBCTenantManager implements TenantManager {
             }
         }
 
+    }
+
+    private void clearTenantCache(int tenantId) {
+        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
     }
 }

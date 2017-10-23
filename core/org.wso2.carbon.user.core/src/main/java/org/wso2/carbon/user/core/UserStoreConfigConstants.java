@@ -36,12 +36,17 @@ public class UserStoreConfigConstants {
     public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the role list of a user";
     public static final String SCIMEnabled = "SCIMEnabled";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
+    public static final String claimOperationsSupported = "ClaimOperationsSupported";
+    public static final String claimOperationsSupportedDescription = "Whether the userstore supports claim read and write";
+    public static final String getClaimOperationsSupportedDisplayName = "Claim Operations Supported";
 
     //Mandatory to LDAP user stores
     public static final String connectionURL = "ConnectionURL";
     public static final String connectionURLDescription = "Connection URL for the user store";
     public static final String connectionName = "ConnectionName";
-    public static final String connectionNameDescription = "This should be the DN (Distinguish Name) of the admin user in LDAP";
+    public static final String connectionNameDescription = "This should be a DN (Distinguish Name) of a user with " +
+                                                           "sufficient permissions to perform operations on users " +
+                                                           "and roles in LDAP";
     public static final String connectionPassword = "ConnectionPassword";
     public static final String connectionPasswordDescription = "Password of the admin user";
     public static final String userSearchBase = "UserSearchBase";

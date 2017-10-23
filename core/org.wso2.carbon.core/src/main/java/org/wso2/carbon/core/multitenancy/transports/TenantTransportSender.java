@@ -21,7 +21,11 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingConstants;
 import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.context.*;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.context.OperationContext;
+import org.apache.axis2.context.ServiceContext;
+import org.apache.axis2.context.ServiceGroupContext;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.AxisServiceGroup;
@@ -47,6 +51,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     private static final String HTTP_ETAG = "HTTP_ETAG";
     private static final String NO_ENTITY_BODY = "NO_ENTITY_BODY";
     private static final String HTTP_SC_DESC ="HTTP_SC_DESC";
+    private static final String EXCESS_TRANSPORT_HEADERS = "EXCESS_TRANSPORT_HEADERS";
+    private static final String FORCE_SC_ACCEPTED = "FORCE_SC_ACCEPTED";
+    private static final String FORCE_POST_PUT_NOBODY = "FORCE_POST_PUT_NOBODY";
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
@@ -97,7 +104,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         superTenantOutMessageContext.setDoingMTOM(msgContext.isDoingMTOM());
         superTenantOutMessageContext.setProperty(MessageContext.TRANSPORT_HEADERS,
                 msgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
-        
+        superTenantOutMessageContext.setProperty(EXCESS_TRANSPORT_HEADERS,
+                msgContext.getProperty(EXCESS_TRANSPORT_HEADERS));
+
         superTenantOutMessageContext.setProperty(MultitenantConstants.HTTP_SC,msgContext.getProperty(MultitenantConstants.HTTP_SC));
         superTenantOutMessageContext.setProperty(HTTP_SC_DESC,
                 msgContext.getProperty(HTTP_SC_DESC));
@@ -130,7 +139,20 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                 msgContext.getProperty(MultitenantConstants.DISABLE_CHUNKING));
         superTenantOutMessageContext.setProperty(MultitenantConstants.NO_KEEPALIVE,
                 msgContext.getProperty(MultitenantConstants.NO_KEEPALIVE));
+        boolean forced = msgContext.isPropertyTrue(FORCE_SC_ACCEPTED);
+        if (forced) {
+            superTenantOutMessageContext.setProperty(FORCE_SC_ACCEPTED, true);
+        }
+        boolean forcedNoBody = msgContext.isPropertyTrue(FORCE_POST_PUT_NOBODY);
+        if (forcedNoBody) {
+            superTenantOutMessageContext.setProperty(FORCE_POST_PUT_NOBODY, true);
+        }
 
+        if (msgContext.getReplyTo() == null) {
+            superTenantOutMessageContext.setReplyTo(new EndpointReference("http://www.w3.org/2005/08/addressing/none"));
+        } else {
+            superTenantOutMessageContext.setReplyTo(msgContext.getReplyTo());
+        }
 
         Map headers = (Map) msgContext.getProperty(MessageContext.TRANSPORT_HEADERS);
 

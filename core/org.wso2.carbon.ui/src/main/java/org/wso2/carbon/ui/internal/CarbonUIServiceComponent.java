@@ -39,6 +39,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.tomcat.api.CarbonTomcatService;
 import org.wso2.carbon.ui.BasicAuthUIAuthenticator;
 import org.wso2.carbon.ui.CarbonProtocol;
 import org.wso2.carbon.ui.CarbonSSOSessionManager;
@@ -105,6 +106,8 @@ import static org.wso2.carbon.CarbonConstants.WSO2CARBON_NS;
  * cardinality="1..1" policy="dynamic" bind="setRealmService"  unbind="unsetRealmService"
  * @scr.reference name="ui.authentication.extender" interface="org.wso2.carbon.ui.UIAuthenticationExtender"
  * cardinality="0..1" policy="dynamic" bind="setUIAuthenticationExtender"  unbind="unsetUIAuthenticationExtender"
+ * @scr.reference name="1..1" interface="org.wso2.carbon.tomcat.api.CarbonTomcatService"
+ * cardinality="1..1" policy="dynamic" bind="setCarbonTomcatService"  unbind="unsetCarbonTomcatService"
  */
 public class CarbonUIServiceComponent {
 
@@ -116,6 +119,7 @@ public class CarbonUIServiceComponent {
     private static ConfigurationContextService ccServiceInstance;
     private static ServerConfigurationService serverConfiguration;
     private static RealmService realmService;
+    private static CarbonTomcatService carbonTomcatService;
     private static List<UIAuthenticationExtender> authenticationExtenders =
             new LinkedList<UIAuthenticationExtender>();
 
@@ -126,57 +130,41 @@ public class CarbonUIServiceComponent {
     protected void activate(ComponentContext ctxt) {
         try {
             start(ctxt.getBundleContext());
-            String adminConsoleURL =
-                    CarbonUIUtil.getAdminConsoleURL(serverConfiguration.getFirstProperty("WebContextRoot"));
-
-            //Retrieving available contexts
-            Context defaultContext = null;
-            Context defaultAdditionalContext = null;
-            ServiceReference reference = ctxt.getBundleContext().getServiceReference(CarbonUIDefinitions.class.getName());
-            CarbonUIDefinitions carbonUIDefinitions = null;
-            if (reference != null) {
-                carbonUIDefinitions =
-                        (CarbonUIDefinitions) ctxt.getBundleContext().getService(reference);
-                if (carbonUIDefinitions != null) {
-                    if (carbonUIDefinitions.getContexts().containsKey("default-context")) {
-                        defaultContext = carbonUIDefinitions.getContexts().get("default-context");
-                    }if (carbonUIDefinitions.getContexts().containsKey("default-additional-context")) {
-                        defaultAdditionalContext = carbonUIDefinitions.getContexts().get("default-additional-context");
-                    }
-
-                }
+            String webContextRoot = serverConfiguration.getFirstProperty("WebContextRoot");
+            if (webContextRoot == null || webContextRoot.isEmpty()) {
+                throw new RuntimeException(
+                        "WebContextRoot can't be null or empty. It should be either '/' or '/[some value]'");
             }
-
+            String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(webContextRoot);
             if (adminConsoleURL != null) {
                 log.info("Mgt Console URL  : " + adminConsoleURL);
             }
-            if (defaultContext != null && !"".equals(defaultContext.getContextName()) && !"null".equals(defaultContext.getContextName())) {
-                // Adding the other context url
-                int index = adminConsoleURL.lastIndexOf("carbon");
-                String defContextUrl = adminConsoleURL.substring(0, index) + defaultContext.getContextName();
-                if (defaultContext.getDescription() != null) {
-                    if (defaultContext.getProtocol() != null && "http".equals(defaultContext.getProtocol())) {
-                        log.info(defaultContext.getDescription() + " : " + CarbonUIUtil.https2httpURL(defContextUrl));
-                    } else {
-                        log.info(defaultContext.getDescription() + " : " + defContextUrl);
+
+            //Retrieving available contexts
+            ServiceReference reference =
+                    ctxt.getBundleContext().getServiceReference(CarbonUIDefinitions.class.getName());
+            CarbonUIDefinitions carbonUIDefinitions = null;
+            if (reference != null) {
+                carbonUIDefinitions = (CarbonUIDefinitions) ctxt.getBundleContext().getService(reference);
+                if (carbonUIDefinitions != null && carbonUIDefinitions.getContexts() != null) {
+                    //Get the default context URL
+                    if ("/".equals(webContextRoot)) {
+                        webContextRoot = "";
                     }
-                } else {
-                    log.info("Default Context : " + defContextUrl);
-                }
-            } if (defaultAdditionalContext != null && !"".equals(defaultAdditionalContext.getContextName()) && !"null".equals(defaultAdditionalContext.getContextName())) {
-                // Adding the other context url
-                int index = adminConsoleURL.lastIndexOf("carbon");
-                String defContextUrl = adminConsoleURL.substring(0, index) + defaultAdditionalContext.getContextName();
-                if (defaultAdditionalContext.getDescription() != null) {
-                    if (defaultAdditionalContext.getProtocol() != null && "http".equals(defaultAdditionalContext.getProtocol())) {
-                        log.info(defaultAdditionalContext.getDescription() + " : " + CarbonUIUtil.https2httpURL(defContextUrl));
-                    } else {
-                        log.info(defaultAdditionalContext.getDescription() + " : " + defContextUrl);
+                    int index = adminConsoleURL.lastIndexOf("carbon");
+                    String defContextUrl = adminConsoleURL.substring(0, index);
+                    //Remove the custom WebContextRoot from URL
+                    if (!"".equals(webContextRoot)) {
+                        defContextUrl = defContextUrl.replace(webContextRoot, "");
                     }
-                } else {
-                    log.info("Default Context : " + defContextUrl);
+
+                    //Print additional URLs
+                    for (String key : carbonUIDefinitions.getContexts().keySet()) {
+                        printAdditionalContext(carbonUIDefinitions.getContexts().get(key), defContextUrl);
+                    }
                 }
             }
+
             DefaultCarbonAuthenticator authenticator = new DefaultCarbonAuthenticator();
             Hashtable<String, String> props = new Hashtable<String, String>();
             props.put(AuthenticatorRegistry.AUTHENTICATOR_TYPE, authenticator.getAuthenticatorName());
@@ -198,8 +186,29 @@ public class CarbonUIServiceComponent {
         }
     }
 
+    private void printAdditionalContext(Context additionalContext, String defContextRoot) {
+        if (additionalContext != null && !"".equals(additionalContext.getContextName()) &&
+            !"null".equals(additionalContext.getContextName())) {
+            String defContextUrl = defContextRoot + additionalContext.getContextName();
+
+            if (additionalContext.getDescription() != null) {
+                if (additionalContext.getProtocol() != null && "http".equals(additionalContext.getProtocol())) {
+                    log.info(additionalContext.getDescription() + " : " + CarbonUIUtil.https2httpURL(defContextUrl));
+                } else {
+                    log.info(additionalContext.getDescription() + " : " + defContextUrl);
+                }
+            } else {
+                log.info("Default Context : " + defContextUrl);
+            }
+        }
+    }
+
     protected void deactivate(ComponentContext ctxt) {
         log.debug("Carbon UI bundle is deactivated ");
+    }
+
+    public static CarbonTomcatService getCarbonTomcatService() {
+        return carbonTomcatService;
     }
 
     public void start(BundleContext context) throws Exception {
@@ -452,6 +461,13 @@ public class CarbonUIServiceComponent {
         ccServiceInstance = null;
     }
 
+    protected void setCarbonTomcatService(CarbonTomcatService contextService) {
+        carbonTomcatService = contextService;
+    }
+
+    protected void unsetCarbonTomcatService(CarbonTomcatService contextService) {
+        carbonTomcatService = null;
+    }
     protected void setRegistryService(RegistryService registryService) {
         registryServiceInstance = registryService;
     }

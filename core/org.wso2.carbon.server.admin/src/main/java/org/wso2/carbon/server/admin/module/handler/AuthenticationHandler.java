@@ -90,7 +90,7 @@ public class AuthenticationHandler extends AbstractHandler {
                     throw new AxisFault(msg, ServerConstants.AUTHENTICATION_FAULT_CODE);
                 }
                 msgContext.setProperty(MultitenantConstants.TENANT_DOMAIN, userTenantDomain);
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(userTenantDomain);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(userTenantDomain, true);
             }
             if (userName != null) {
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(userName);
@@ -220,7 +220,7 @@ public class AuthenticationHandler extends AbstractHandler {
         HttpServletRequest request = (HttpServletRequest) msgContext
                 .getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
 
-        if (request == null) {
+        if (request != null) {
             HttpSession session = request.getSession();
             if (session != null) {
                 try {

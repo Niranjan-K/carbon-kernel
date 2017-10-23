@@ -54,7 +54,7 @@ public class ReadWriteLDAPUserStoreConstants {
                 "ou=", UserStoreConfigConstants.connectionNameDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.connectionPassword, "Connection Password",
                 "", UserStoreConfigConstants.connectionPasswordDescription, true);
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Based",
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
                 "ou=Users,dc=wso2,dc=org", UserStoreConfigConstants.userSearchBaseDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userEntryObjectClass,
                 "User Entry Object Class", "wso2Person", UserStoreConfigConstants
@@ -89,8 +89,8 @@ public class ReadWriteLDAPUserStoreConstants {
 
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member", UserStoreConfigConstants.membershipAttributeDescription);
         setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "", UserStoreConfigConstants.memberOfAttribute);
-        setProperty("BackLinksEnabled", "Enable Back Links", "false", " Whether to allow attributes to be result from" +
-                "references to the object from other objects");
+        setProperty("BackLinksEnabled", "Enable Back Links", "false",
+                "Whether to allow attributes to be result from references to the object from other objects");
 
         setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
