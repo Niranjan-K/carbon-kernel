@@ -1,7 +1,0 @@
-language: java
-jdk:
-  - oraclejdk8
-# safelist
-branches:
-  only:
-  - 4.4.x-travis-ci
